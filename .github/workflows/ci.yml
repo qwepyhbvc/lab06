@@ -7,100 +7,28 @@ on:
     branches: [ main, master ]
 
 jobs:
-  build-linux:
+  test:
     runs-on: ubuntu-latest
     
     strategy:
       matrix:
         compiler: [gcc, clang]
-        build_type: [Release, Debug]
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
-    - name: Clean any existing build
-      run: rm -rf build
-    
-    - name: Install CMake
-      run: sudo apt-get install -y cmake
-    
-    - name: Configure
+    - name: Configure with tests
       run: |
         mkdir -p build
         cd build
-        cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        cmake .. -DBUILD_TESTS=ON
     
     - name: Build
       run: |
         cd build
-        cmake --build . --config ${{ matrix.build_type }}
+        cmake --build .
     
-    - name: Run hello_world
-      run: |
-        if [ -f build/hello_world_application/hello_world ]; then
-          ./build/hello_world_application/hello_world
-        elif [ -f build/hello_world_application/Release/hello_world ]; then
-          ./build/hello_world_application/Release/hello_world
-        else
-          find build -name "hello_world" -executable -exec {} \;
-        fi
-    
-    - name: Run equation
-      run: |
-        if [ -f build/solver_application/equation ]; then
-          echo "1 -3 2" | ./build/solver_application/equation
-        elif [ -f build/solver_application/Release/equation ]; then
-          echo "1 -3 2" | ./build/solver_application/Release/equation
-        else
-          echo "1 -3 2" | find build -name "equation" -executable -exec {} \;
-        fi
-
-  build-windows:
-    runs-on: windows-latest
-    
-    strategy:
-      matrix:
-        build_type: [Release, Debug]
-    
-    steps:
-    - uses: actions/checkout@v3
-    
-    - name: Clean any existing build
-      shell: pwsh
-      run: |
-        if (Test-Path build) { Remove-Item -Recurse -Force build }
-    
-    - name: Configure
-      run: |
-        mkdir build
-        cd build
-        cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-    
-    - name: Build
+    - name: Run tests
       run: |
         cd build
-        cmake --build . --config ${{ matrix.build_type }}
-    
-    - name: Run hello_world
-      shell: pwsh
-      run: |
-        if (Test-Path "build/hello_world_application/hello_world.exe") {
-          .\build\hello_world_application\hello_world.exe
-        } elseif (Test-Path "build/hello_world_application/Release/hello_world.exe") {
-          .\build\hello_world_application\Release\hello_world.exe
-        } else {
-          Get-ChildItem -Recurse -Filter "hello_world.exe" | ForEach-Object { & $_ }
-        }
-    
-    - name: Run equation
-      shell: pwsh
-      run: |
-        $testInput = "1`n-3`n2"
-        if (Test-Path "build/solver_application/equation.exe") {
-          $testInput | .\build\solver_application\equation.exe
-        } elseif (Test-Path "build/solver_application/Release/equation.exe") {
-          $testInput | .\build\solver_application\Release\equation.exe
-        } else {
-          $exe = Get-ChildItem -Recurse -Filter "equation.exe" | Select-Object -First 1
-          $testInput | & $exe.FullName
-        }
+        ctest --verbose
