@@ -7,7 +7,7 @@ on:
     branches: [ main, master ]
 
 jobs:
-  test:
+  test-print:
     runs-on: ubuntu-latest
     
     strategy:
@@ -17,18 +17,67 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Configure with tests
+    - name: Configure print tests
       run: |
-        mkdir -p build
-        cd build
+        mkdir -p build-print
+        cd build-print
         cmake .. -DBUILD_TESTS=ON
     
-    - name: Build
+    - name: Build print tests
       run: |
-        cd build
+        cd build-print
         cmake --build .
     
-    - name: Run tests
+    - name: Run print tests
+      run: |
+        cd build-print
+        ctest --verbose
+
+  test-banking:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Configure banking tests
+      run: |
+        mkdir -p build-banking
+        cd build-banking
+        cmake .. -DBUILD_BANKING_TESTS=ON
+    
+    - name: Build banking tests
+      run: |
+        cd build-banking
+        cmake --build .
+    
+    - name: Run banking tests
+      run: |
+        cd build-banking
+        ctest --verbose
+
+  test-windows:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Configure all tests
+      run: |
+        mkdir build
+        cd build
+        cmake .. -DBUILD_TESTS=ON -DBUILD_BANKING_TESTS=ON
+    
+    - name: Build all tests
       run: |
         cd build
-        ctest --verbose
+        cmake --build . --config Release
+    
+    - name: Run all tests
+      shell: pwsh
+      run: |
+        cd build
+        ctest --verbose -C Release
