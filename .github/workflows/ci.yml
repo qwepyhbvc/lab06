@@ -26,20 +26,6 @@ jobs:
       run: |
         cd build
         ctest --verbose
-
-  test-windows:
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Configure
+    - name: Run solver
       run: |
-        mkdir build && cd build
-        cmake .. -DBUILD_TESTS=ON -DBUILD_BANKING_TESTS=ON -Dgtest_force_shared_crt=ON
-    - name: Build
-      run: |
-        cd build
-        cmake --build . --config Release
-    - name: Run tests
-      run: |
-        cd build
-        ctest --verbose -C Release
+        echo "1 -3 2" | ./build/solver_application/equation

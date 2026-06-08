@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(lab06)
+project(print)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -13,31 +13,20 @@ set(PRINT_VERSION
   ${PRINT_VERSION_MAJOR}.${PRINT_VERSION_MINOR}.${PRINT_VERSION_PATCH}.${PRINT_VERSION_TWEAK})
 set(PRINT_VERSION_STRING "v${PRINT_VERSION}")
 
+# Библиотеки (порядок ВАЖЕН!)
+add_subdirectory(formatter_lib)
+add_subdirectory(formatter_ex_lib)
+add_subdirectory(solver_lib)
+add_subdirectory(banking_lib)
+add_subdirectory(solver_application)
+
 # Основная библиотека print
 add_library(print STATIC sources/print.cpp)
 target_include_directories(print PUBLIC include)
 
-# Библиотека banking
-add_subdirectory(banking_lib)
-
-# formatter_ex_lib (если существует)
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/formatter_ex_lib/CMakeLists.txt)
-    add_subdirectory(formatter_ex_lib)
-endif()
-
-# solver_lib (если существует)
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/solver_lib/CMakeLists.txt)
-    add_subdirectory(solver_lib)
-endif()
-
-# solver_application (если существует)
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/solver_application/CMakeLists.txt)
-    add_subdirectory(solver_application)
-endif()
-
 # Опции для тестов
-option(BUILD_TESTS "Build tests for print" OFF)
-option(BUILD_BANKING_TESTS "Build tests for banking" OFF)
+option(BUILD_TESTS "Build tests" OFF)
+option(BUILD_BANKING_TESTS "Build banking tests" OFF)
 
 # Тесты для print
 if(BUILD_TESTS)
@@ -58,5 +47,5 @@ if(BUILD_TESTS)
     add_test(NAME check COMMAND check)
 endif()
 
-# Подключаем CPack
+# CPack
 include(CPackConfig.cmake)

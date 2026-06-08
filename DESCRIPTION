@@ -1,0 +1,3 @@
+Static C++ library for printing with formatter and solver applications.
+Includes formatter library, extended formatter, quadratic equation solver,
+and banking library with unit tests.
