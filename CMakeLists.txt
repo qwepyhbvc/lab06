@@ -45,3 +45,11 @@ if(BUILD_TESTS)
 endif()
 
 include(CPackConfig.cmake)
+
+# Установка для solver_application (если существует)
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/solver_application/equation.cpp)
+    add_subdirectory(solver_application)
+    install(TARGETS equation
+        RUNTIME DESTINATION bin
+    )
+endif()
