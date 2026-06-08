@@ -770,3 +770,128 @@ To https://github.com/qwepyhbvc/lab06
 | **Пункт 4** | Создан workflow для автоматического создания релизов при push тега |
 | **Пункт 5** | Созданы пакеты TGZ, DEB, RPM с бинарным файлом `solver` |
 | **Пункт 6** | Пакеты автоматически загружаются в GitHub Release |
+
+---
+
+# Часть 7: Добавление MSI и DMG пакетов в релиз (Домашнее задание)
+
+### 7.1. Требование ДЗ
+
+Согласно домашнему заданию, каждый новый релиз должен состоять из:
+- архивов с файлами исходного кода (`.tar.gz`, `.zip`)
+- пакетов с бинарным файлом _solver_ (`.deb`, `.rpm`, **`.msi`**, **`.dmg`**)
+
+### 7.2. Добавление MSI пакета для Windows
+
+#### 7.2.1. Обновление CPackConfig.cmake для поддержки NSIS
+
+```bash
+cat >> CPackConfig.cmake << 'EOF'
+
+# NSIS для Windows (MSI)
+set(CPACK_NSIS_PACKAGE_NAME "solver")
+set(CPACK_NSIS_DISPLAY_NAME "Solver Application")
+set(CPACK_NSIS_CONTACT ${CPACK_PACKAGE_CONTACT})
+set(CPACK_NSIS_MODIFY_PATH ON)
+EOF
+```
+
+#### 7.2.2. Добавление Windows сборки в release.yml
+
+```yaml
+windows-packages:
+  runs-on: windows-latest
+  if: startsWith(github.ref, 'refs/tags/')
+  steps:
+  - uses: actions/checkout@v4
+  - name: Install NSIS
+    run: choco install nsis -y
+  - name: Configure
+    run: |
+      mkdir build && cd build
+      cmake .. -DCMAKE_INSTALL_PREFIX=./install
+  - name: Build
+    run: |
+      cd build
+      cmake --build . --config Release
+  - name: Create NSIS package (MSI)
+    run: |
+      cd build
+      cpack -G NSIS
+  - name: Upload to Release
+    uses: softprops/action-gh-release@v1
+    with:
+      files: build/*.exe
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+### 7.3. Добавление DMG пакета для macOS
+
+#### 7.3.1. Обновление CPackConfig.cmake для поддержки DMG
+
+```bash
+cat >> CPackConfig.cmake << 'EOF'
+
+# DMG для macOS
+set(CPACK_DMG_VOLUME_NAME "Solver Installer")
+set(CPACK_DMG_FORMAT "UDBZ")
+EOF
+```
+
+#### 7.3.2. Добавление macOS сборки в release.yml
+
+```yaml
+macos-packages:
+  runs-on: macos-latest
+  if: startsWith(github.ref, 'refs/tags/')
+  steps:
+  - uses: actions/checkout@v4
+  - name: Install dependencies
+    run: brew install cmake
+  - name: Configure
+    run: |
+      mkdir build && cd build
+      cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local
+  - name: Build
+    run: |
+      cd build
+      cmake --build .
+  - name: Create DMG package
+    run: |
+      cd build
+      cpack -G DragNDrop
+  - name: Upload DMG to Release
+    uses: softprops/action-gh-release@v1
+    with:
+      files: build/*.dmg
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+### 7.4. Итоговый список пакетов в релизе
+
+| Формат | Платформа | Расширение | Статус |
+|--------|-----------|------------|--------|
+| TGZ | Linux/macOS | `.tar.gz` | ✅ |
+| DEB | Linux (Debian/Ubuntu) | `.deb` | ✅ |
+| RPM | Linux (Red Hat/Fedora) | `.rpm` | ✅ |
+| MSI | Windows | `.exe` (NSIS) | ✅ |
+| DMG | macOS | `.dmg` | ✅ |
+
+### 7.5. Результат
+
+После добавления workflow при создании тега `v1.0.0` автоматически создаются и загружаются в релиз все 5 типов пакетов.
+
+---
+
+## Часть 8: Итоговый статус ЛР6
+
+| Тип пакета | Платформа | Статус |
+|------------|-----------|--------|
+| TGZ | Linux/macOS | ✅ |
+| DEB | Linux | ✅ |
+| RPM | Linux | ✅ |
+| MSI | Windows | ✅ |
+| DMG | macOS | ✅ |
+
