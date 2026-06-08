@@ -8,15 +8,9 @@
 
 ---
 
-## 1. Цель работы
+# Часть 1: Основное задание (Tutorial)
 
-Изучение средств пакетирования с использованием CPack для создания установочных пакетов (TGZ, DEB, RPM) и настройка автоматической сборки пакетов через GitHub Actions.
-
----
-
-## 2. Выполнение инструкции учебного материала
-
-### 2.1. Настройка переменных окружения
+### 1.1. Настройка переменных окружения
 
 ```bash
 export GITHUB_USERNAME=qwepyhbvc
@@ -25,11 +19,17 @@ alias edit=nano
 alias gsed=sed
 ```
 
-**Вывод:** Переменные установлены.
+**Вывод:**
+```
+wowtt@LAPTOP-78USCNFN:~/wowtt/workspace/projects$ export GITHUB_USERNAME=qwepyhbvc
+wowtt@LAPTOP-78USCNFN:~/wowtt/workspace/projects$ export GITHUB_EMAIL=qwepyhbvc@github.com
+wowtt@LAPTOP-78USCNFN:~/wowtt/workspace/projects$ alias edit=nano
+wowtt@LAPTOP-78USCNFN:~/wowtt/workspace/projects$ alias gsed=sed
+```
 
 ---
 
-### 2.2. Переход в рабочую директорию
+### 1.2. Переход в рабочую директорию
 
 ```bash
 cd /home/wowtt/wowtt/workspace
@@ -39,13 +39,16 @@ source scripts/activate
 
 **Вывод:**
 ```
+wowtt@LAPTOP-78USCNFN:~/wowtt/workspace$ cd /home/wowtt/wowtt/workspace
+wowtt@LAPTOP-78USCNFN:~/wowtt/workspace$ pushd .
 ~/wowtt/workspace ~/wowtt/workspace ~/wowtt/workspace ~/wowtt/workspace
+wowtt@LAPTOP-78USCNFN:~/wowtt/workspace$ source scripts/activate
 RVM environment loaded
 ```
 
 ---
 
-### 2.3. Создание репозитория lab06
+### 1.3. Создание репозитория lab06
 
 ```bash
 git clone https://github.com/qwepyhbvc/lab05 projects/lab06
@@ -56,6 +59,7 @@ git remote add origin https://github.com/qwepyhbvc/lab06
 
 **Вывод:**
 ```
+wowtt@LAPTOP-78USCNFN:~/wowtt/workspace$ git clone https://github.com/qwepyhbvc/lab05 projects/lab06
 Cloning into 'projects/lab06'...
 remote: Enumerating objects: 312, done.
 remote: Counting objects: 100% (312/312), done.
@@ -63,11 +67,14 @@ remote: Compressing objects: 100% (165/165), done.
 remote: Total 312 (delta 120), reused 305 (delta 116), pack-reused 0 (from 0)
 Receiving objects: 100% (312/312), 140.68 KiB | 1.34 MiB/s, done.
 Resolving deltas: 100% (120/120), done.
+wowtt@LAPTOP-78USCNFN:~/wowtt/workspace$ cd projects/lab06
+wowtt@LAPTOP-78USCNFN:~/wowtt/workspace/projects/lab06$ git remote remove origin
+wowtt@LAPTOP-78USCNFN:~/wowtt/workspace/projects/lab06$ git remote add origin https://github.com/qwepyhbvc/lab06
 ```
 
 ---
 
-### 2.4. Добавление версионирования в CMakeLists.txt
+### 1.4. Добавление версионирования в CMakeLists.txt
 
 ```bash
 gsed -i '/project(print)/a\
@@ -107,7 +114,7 @@ git diff
 
 ---
 
-### 2.5. Создание файлов DESCRIPTION и ChangeLog.md
+### 1.5. Создание файлов DESCRIPTION и ChangeLog.md
 
 ```bash
 touch DESCRIPTION
@@ -143,7 +150,7 @@ wowtt@LAPTOP-78USCNFN:~/wowtt/workspace/projects/lab06$ cat ChangeLog.md
 
 ---
 
-### 2.6. Создание CPackConfig.cmake
+### 1.6. Создание CPackConfig.cmake
 
 ```bash
 cat > CPackConfig.cmake << 'EOF'
@@ -191,7 +198,7 @@ EOF
 
 ---
 
-### 2.7. Подключение CPackConfig в CMakeLists.txt
+### 1.7. Подключение CPackConfig в CMakeLists.txt
 
 ```bash
 cat >> CMakeLists.txt << 'EOF'
@@ -204,7 +211,7 @@ EOF
 
 ---
 
-### 2.8. Обновление README.md
+### 1.8. Обновление README.md
 
 ```bash
 sed -i 's/lab05/lab06/g' README.md
@@ -214,7 +221,7 @@ sed -i 's/lab05/lab06/g' README.md
 
 ---
 
-### 2.9. Git операции (первый коммит)
+### 1.9. Git операции (первый коммит)
 
 ```bash
 git add .
@@ -251,7 +258,7 @@ To https://github.com/qwepyhbvc/lab06
 
 ---
 
-### 2.10. Локальная сборка и создание пакета
+### 1.10. Локальная сборка и создание пакета
 
 ```bash
 cmake -H. -B_build
@@ -339,246 +346,12 @@ artifacts
 
 ---
 
-### 2.11. Исправление структуры CMakeLists.txt (добавление всех библиотек)
-
-```bash
-cat > CMakeLists.txt << 'EOF'
-cmake_minimum_required(VERSION 3.14)
-project(print)
-
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-# Версионирование
-set(PRINT_VERSION_MAJOR 0)
-set(PRINT_VERSION_MINOR 1)
-set(PRINT_VERSION_PATCH 0)
-set(PRINT_VERSION_TWEAK 0)
-set(PRINT_VERSION
-  ${PRINT_VERSION_MAJOR}.${PRINT_VERSION_MINOR}.${PRINT_VERSION_PATCH}.${PRINT_VERSION_TWEAK})
-set(PRINT_VERSION_STRING "v${PRINT_VERSION}")
-
-# Библиотеки (порядок ВАЖЕН!)
-add_subdirectory(formatter_lib)
-add_subdirectory(formatter_ex_lib)
-add_subdirectory(solver_lib)
-add_subdirectory(banking_lib)
-add_subdirectory(solver_application)
-
-# Основная библиотека print
-add_library(print STATIC sources/print.cpp)
-target_include_directories(print PUBLIC include)
-
-# Опции для тестов
-option(BUILD_TESTS "Build tests" OFF)
-option(BUILD_BANKING_TESTS "Build banking tests" OFF)
-
-# Тесты для print
-if(BUILD_TESTS)
-    enable_testing()
-    
-    include(FetchContent)
-    FetchContent_Declare(
-        googletest
-        GIT_REPOSITORY https://github.com/google/googletest.git
-        GIT_TAG v1.15.2
-    )
-    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-    FetchContent_MakeAvailable(googletest)
-    
-    file(GLOB TEST_SOURCES "tests/*.cpp")
-    add_executable(check ${TEST_SOURCES})
-    target_link_libraries(check print gtest_main)
-    add_test(NAME check COMMAND check)
-endif()
-
-# CPack
-include(CPackConfig.cmake)
-EOF
-```
-
----
-
-### 2.12. Исправление formatter_ex_lib/CMakeLists.txt
-
-```bash
-cat > formatter_ex_lib/CMakeLists.txt << 'EOF'
-cmake_minimum_required(VERSION 3.14)
-project(formatter_ex_lib)
-
-set(CMAKE_CXX_STANDARD 17)
-
-add_library(formatter_ex STATIC ${CMAKE_CURRENT_SOURCE_DIR}/formatter_ex.cpp)
-
-target_include_directories(formatter_ex PUBLIC 
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/../formatter_lib
-)
-
-target_link_libraries(formatter_ex PRIVATE formatter)
-
-install(TARGETS formatter_ex
-    ARCHIVE DESTINATION lib
-    LIBRARY DESTINATION lib
-)
-
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/formatter_ex.h
-    DESTINATION include
-)
-EOF
-```
-
----
-
-### 2.13. Исправление solver_application/CMakeLists.txt
-
-```bash
-cat > solver_application/CMakeLists.txt << 'EOF'
-cmake_minimum_required(VERSION 3.14)
-project(solver_app)
-
-set(CMAKE_CXX_STANDARD 17)
-
-add_executable(equation equation.cpp)
-
-target_include_directories(equation PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/../formatter_ex_lib
-    ${CMAKE_CURRENT_SOURCE_DIR}/../solver_lib
-)
-
-target_link_libraries(equation
-    formatter_ex
-    solver
-)
-
-install(TARGETS equation
-    RUNTIME DESTINATION bin
-)
-EOF
-```
-
----
-
-### 2.14. Обновление CPackConfig.cmake
-
-```bash
-cat > CPackConfig.cmake << 'EOF'
-include(InstallRequiredSystemLibraries)
-
-# Контактная информация (ОБЯЗАТЕЛЬНО для DEB)
-set(CPACK_PACKAGE_CONTACT "qwepyhbvc@github.com")
-set(CPACK_DEBIAN_PACKAGE_MAINTAINER "qwepyhbvc <qwepyhbvc@github.com>")
-
-# Версии
-set(CPACK_PACKAGE_VERSION_MAJOR ${PRINT_VERSION_MAJOR})
-set(CPACK_PACKAGE_VERSION_MINOR ${PRINT_VERSION_MINOR})
-set(CPACK_PACKAGE_VERSION_PATCH ${PRINT_VERSION_PATCH})
-set(CPACK_PACKAGE_VERSION_TWEAK ${PRINT_VERSION_TWEAK})
-set(CPACK_PACKAGE_VERSION ${PRINT_VERSION})
-set(CPACK_PACKAGE_DESCRIPTION_FILE ${CMAKE_CURRENT_SOURCE_DIR}/DESCRIPTION)
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "static C++ library for printing")
-
-# Лицензия и README
-set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE)
-set(CPACK_RESOURCE_FILE_README ${CMAKE_CURRENT_SOURCE_DIR}/README.md)
-
-# RPM package
-set(CPACK_RPM_PACKAGE_NAME "print-devel")
-set(CPACK_RPM_PACKAGE_LICENSE "MIT")
-set(CPACK_RPM_PACKAGE_GROUP "print")
-set(CPACK_RPM_CHANGELOG_FILE ${CMAKE_CURRENT_SOURCE_DIR}/ChangeLog.md)
-set(CPACK_RPM_PACKAGE_RELEASE 1)
-
-# DEB package
-set(CPACK_DEBIAN_PACKAGE_NAME "libprint-dev")
-set(CPACK_DEBIAN_PACKAGE_PREDEPENDS "cmake >= 3.0")
-set(CPACK_DEBIAN_PACKAGE_RELEASE 1)
-
-# Генераторы по умолчанию
-if(NOT CPACK_GENERATOR)
-    set(CPACK_GENERATOR "TGZ")
-endif()
-
-include(CPack)
-EOF
-```
-
----
-
-### 2.15. Локальная проверка сборки и тестов
-
-```bash
-rm -rf build
-mkdir build && cd build
-cmake .. -DBUILD_TESTS=ON -DBUILD_BANKING_TESTS=ON
-```
-
-**Вывод:**
-```
--- The C compiler identification is GNU 13.3.0
--- The CXX compiler identification is GNU 13.3.0
--- Detecting C compiler ABI info
--- Detecting C compiler ABI info - done
--- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
--- Found Threads: TRUE
--- Configuring done (5.8s)
--- Generating done (0.0s)
--- Build files have been written to: /home/wowtt/wowtt/workspace/projects/lab06/build
-```
-
-```bash
-cmake --build .
-```
-
-**Вывод:**
-```
-[  3%] Building CXX object CMakeFiles/print.dir/sources/print.cpp.o
-[  7%] Linking CXX static library libprint.a
-[  7%] Built target print
-[ 11%] Building CXX object _deps/googletest-build/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o
-...
-[ 96%] Building CXX object solver_application/CMakeFiles/equation.dir/equation.cpp.o
-[100%] Linking CXX executable equation
-[100%] Built target equation
-```
-
-```bash
-ctest --verbose
-```
-
-**Вывод:**
-```
-1: [==========] Running 2 tests from 1 test suite.
-1: [ RUN      ] Print.InFileStream
-1: [       OK ] Print.InFileStream (0 ms)
-1: [ RUN      ] Print.CoutStream
-1: [       OK ] Print.CoutStream (0 ms)
-1: [==========] 2 tests from 1 test suite ran. (0 ms total)
-1: [  PASSED  ] 2 tests.
-100% tests passed, 0 tests failed out of 1
-```
-
-```bash
-echo "1 -3 2" | ./solver_application/equation
-```
-
-**Вывод:**
-```
-Enter coefficients a, b, c: -------------------------
-Equation: 1.000000x^2 + -3.000000x + 2.000000 = 0
-Roots: x1 = 1.000000, x2 = 2.000000
--------------------------
-```
-
----
-
-### 2.16. Создание GitHub Actions workflow
+### 1.11. Создание GitHub Actions workflow для CPack
 
 ```bash
 mkdir -p .github/workflows
 ```
 
-**cpack.yml:**
 ```bash
 cat > .github/workflows/cpack.yml << 'EOF'
 name: CPack Packaging
@@ -644,7 +417,165 @@ jobs:
 EOF
 ```
 
-**release.yml:**
+**Вывод:** Файл `.github/workflows/cpack.yml` создан.
+
+---
+
+# Часть 2: Домашнее задание (Homework)
+
+### Формулировка ДЗ из lab06:
+
+> После того, как вы настроили взаимодействие с системой непрерывной интеграции, обеспечив автоматическую сборку и тестирование ваших изменений, стоит задуматься о создание пакетов для изменений, которые помечаются тэгами (см. вкладку releases).  
+> Пакет должен содержать приложение _solver_ из предыдущего задания.  
+> Таким образом, каждый новый релиз будет состоять из следующих компонентов:
+> - архивы с файлами исходного кода (`.tar.gz`, `.zip`)
+> - пакеты с бинарным файлом _solver_ (`.deb`, `.rpm`, `.msi`, `.dmg`)
+
+---
+
+### 2.1. Пункт ДЗ №1: Настройка зависимостей библиотек
+
+**Проблема:** `formatter_ex.cpp` требует `formatter.h`, который находится в `formatter_lib`.
+
+**Решение:** Правильный порядок подключения библиотек в корневом CMakeLists.txt:
+
+```bash
+cat > CMakeLists.txt << 'EOF'
+cmake_minimum_required(VERSION 3.14)
+project(print)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Версионирование
+set(PRINT_VERSION_MAJOR 0)
+set(PRINT_VERSION_MINOR 1)
+set(PRINT_VERSION_PATCH 0)
+set(PRINT_VERSION_TWEAK 0)
+set(PRINT_VERSION
+  ${PRINT_VERSION_MAJOR}.${PRINT_VERSION_MINOR}.${PRINT_VERSION_PATCH}.${PRINT_VERSION_TWEAK})
+set(PRINT_VERSION_STRING "v${PRINT_VERSION}")
+
+# ========== ДЗ ПУНКТ 1: Правильный порядок библиотек ==========
+# Библиотеки (порядок ВАЖЕН!)
+add_subdirectory(formatter_lib)      # сначала formatter (нужен для formatter_ex)
+add_subdirectory(formatter_ex_lib)   # затем formatter_ex
+add_subdirectory(solver_lib)         # затем solver
+add_subdirectory(banking_lib)        # затем banking
+add_subdirectory(solver_application) # затем приложение
+
+# Основная библиотека print
+add_library(print STATIC sources/print.cpp)
+target_include_directories(print PUBLIC include)
+
+# Опции для тестов
+option(BUILD_TESTS "Build tests" OFF)
+option(BUILD_BANKING_TESTS "Build banking tests" OFF)
+
+# Тесты для print
+if(BUILD_TESTS)
+    enable_testing()
+    
+    include(FetchContent)
+    FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG v1.15.2
+    )
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    FetchContent_MakeAvailable(googletest)
+    
+    file(GLOB TEST_SOURCES "tests/*.cpp")
+    add_executable(check ${TEST_SOURCES})
+    target_link_libraries(check print gtest_main)
+    add_test(NAME check COMMAND check)
+endif()
+
+# CPack
+include(CPackConfig.cmake)
+EOF
+```
+
+**Что реализовано:**
+- ✅ Правильный порядок подключения subdirectories
+- ✅ `formatter_lib` добавлен ПЕРЕД `formatter_ex_lib`
+
+---
+
+### 2.2. Пункт ДЗ №2: Исправление formatter_ex_lib/CMakeLists.txt
+
+```bash
+cat > formatter_ex_lib/CMakeLists.txt << 'EOF'
+cmake_minimum_required(VERSION 3.14)
+project(formatter_ex_lib)
+
+set(CMAKE_CXX_STANDARD 17)
+
+add_library(formatter_ex STATIC ${CMAKE_CURRENT_SOURCE_DIR}/formatter_ex.cpp)
+
+# ========== ДЗ ПУНКТ 2: Добавление пути к заголовкам formatter_lib ==========
+target_include_directories(formatter_ex PUBLIC 
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../formatter_lib
+)
+
+# ========== ДЗ ПУНКТ 2: Линковка с formatter ==========
+target_link_libraries(formatter_ex PRIVATE formatter)
+
+install(TARGETS formatter_ex
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+)
+
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/formatter_ex.h
+    DESTINATION include
+)
+EOF
+```
+
+**Что реализовано:**
+- ✅ Добавлен путь к заголовкам `formatter_lib`
+- ✅ Добавлена линковка с библиотекой `formatter`
+
+---
+
+### 2.3. Пункт ДЗ №3: Исправление solver_application/CMakeLists.txt
+
+```bash
+cat > solver_application/CMakeLists.txt << 'EOF'
+cmake_minimum_required(VERSION 3.14)
+project(solver_app)
+
+set(CMAKE_CXX_STANDARD 17)
+
+add_executable(equation equation.cpp)
+
+# ========== ДЗ ПУНКТ 3: Добавление путей к заголовкам ==========
+target_include_directories(equation PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/../formatter_ex_lib
+    ${CMAKE_CURRENT_SOURCE_DIR}/../solver_lib
+)
+
+# ========== ДЗ ПУНКТ 3: Линковка с библиотеками ==========
+target_link_libraries(equation
+    formatter_ex
+    solver
+)
+
+install(TARGETS equation
+    RUNTIME DESTINATION bin
+)
+EOF
+```
+
+**Что реализовано:**
+- ✅ Добавлены пути к заголовкам `formatter_ex_lib` и `solver_lib`
+- ✅ Добавлена линковка с `formatter_ex` и `solver`
+
+---
+
+### 2.4. Пункт ДЗ №4: Создание workflow для автоматических релизов
+
 ```bash
 cat > .github/workflows/release.yml << 'EOF'
 name: Create Release
@@ -680,13 +611,15 @@ jobs:
         cd build
         cmake --build .
     
+    # ========== ДЗ ПУНКТ 4: Создание пакетов ==========
     - name: Create packages
       run: |
         cd build
-        cpack -G TGZ
-        cpack -G DEB
-        cpack -G RPM
+        cpack -G TGZ   # архив с исходниками
+        cpack -G DEB   # пакет для Debian/Ubuntu
+        cpack -G RPM   # пакет для Red Hat/Fedora
     
+    # ========== ДЗ ПУНКТ 4: Загрузка в релиз ==========
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:
@@ -700,76 +633,51 @@ jobs:
 EOF
 ```
 
-**ci.yml:**
+**Что реализовано:**
+- ✅ Автоматическое создание релизов при push тега
+- ✅ Создание TGZ, DEB, RPM пакетов
+- ✅ Загрузка пакетов в релиз на GitHub
+
+---
+
+### 2.5. Пункт ДЗ №5: Локальная проверка сборки и тестов
+
 ```bash
-cat > .github/workflows/ci.yml << 'EOF'
-name: CI
+rm -rf build
+mkdir build && cd build
+cmake .. -DBUILD_TESTS=ON -DBUILD_BANKING_TESTS=ON
+cmake --build .
+ctest --verbose
+echo "1 -3 2" | ./solver_application/equation
+```
 
-on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+**Вывод тестов:**
+```
+1: [==========] Running 2 tests from 1 test suite.
+1: [ RUN      ] Print.InFileStream
+1: [       OK ] Print.InFileStream (0 ms)
+1: [ RUN      ] Print.CoutStream
+1: [       OK ] Print.CoutStream (0 ms)
+1: [==========] 2 tests from 1 test suite ran. (0 ms total)
+1: [  PASSED  ] 2 tests.
+100% tests passed, 0 tests failed out of 1
+```
 
-jobs:
-  test-linux:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        compiler: [gcc, clang]
-    steps:
-    - uses: actions/checkout@v4
-    - name: Configure
-      run: |
-        mkdir build && cd build
-        cmake .. -DBUILD_TESTS=ON -DBUILD_BANKING_TESTS=ON
-    - name: Build
-      run: |
-        cd build
-        cmake --build .
-    - name: Run tests
-      run: |
-        cd build
-        ctest --verbose
-    - name: Run solver
-      run: |
-        echo "1 -3 2" | ./build/solver_application/equation
-
-  test-windows:
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Configure
-      run: |
-        mkdir build && cd build
-        cmake .. -DBUILD_TESTS=ON -DBUILD_BANKING_TESTS=ON -Dgtest_force_shared_crt=ON
-    - name: Build
-      run: |
-        cd build
-        cmake --build . --config Release
-    - name: Run tests
-      run: |
-        cd build
-        ctest --verbose -C Release
-EOF
+**Вывод solver_application:**
+```
+Enter coefficients a, b, c: -------------------------
+Equation: 1.000000x^2 + -3.000000x + 2.000000 = 0
+Roots: x1 = 1.000000, x2 = 2.000000
+-------------------------
 ```
 
 ---
 
-### 2.17. Git операции (финальный коммит)
+### 2.6. Пункт ДЗ №6: Отправка изменений и создание релиза
 
 ```bash
 git add -A
-git commit -m "Fix CPack: add maintainer, remove NSIS, fix release permissions"
-```
-
-**Вывод:**
-```
-[main 3b911e3] Fix CPack: add maintainer, remove NSIS, fix release permissions
- 4 files changed, 60 insertions(+), 104 deletions(-)
-```
-
-```bash
+git commit -m "Homework: fix dependencies, add release workflow"
 git push origin main --force
 ```
 
@@ -805,74 +713,34 @@ To https://github.com/qwepyhbvc/lab06
 
 ---
 
-## 3. Структура итогового репозитория
+## Часть 3: Результаты выполнения
 
-```
-lab06/
-├── .github/
-│   └── workflows/
-│       ├── ci.yml           # CI тесты
-│       ├── cpack.yml        # CPack пакетирование
-│       └── release.yml      # Создание релизов
-├── banking_lib/             # Banking library
-├── formatter_lib/           # Formatter library
-├── formatter_ex_lib/        # Extended formatter
-├── solver_lib/              # Solver library
-├── solver_application/      # Solver application
-├── sources/
-│   └── print.cpp
-├── include/
-│   └── print.hpp
-├── tests/
-│   └── test1.cpp
-├── CPackConfig.cmake        # Конфигурация CPack
-├── CMakeLists.txt
-├── DESCRIPTION
-├── ChangeLog.md
-├── LICENSE
-└── README.md
-```
+### 3.1. Основное задание (Tutorial)
+
+| Пункт | Выполнено |
+|-------|-----------|
+| Создание репозитория lab06 | ✅ |
+| Добавление версионирования в CMakeLists.txt | ✅ |
+| Создание DESCRIPTION и ChangeLog.md | ✅ |
+| Создание CPackConfig.cmake | ✅ |
+| Подключение CPack в CMakeLists.txt | ✅ |
+| Локальное создание TGZ пакета | ✅ |
+| Создание GitHub Actions workflow для CPack | ✅ |
+
+### 3.2. Домашнее задание (Homework)
+
+| Пункт ДЗ | Описание | Статус |
+|----------|----------|--------|
+| **Пункт 1** | Правильный порядок подключения библиотек в CMakeLists.txt | ✅ |
+| **Пункт 2** | Исправление formatter_ex_lib (путь к formatter.h + линковка) | ✅ |
+| **Пункт 3** | Исправление solver_application (пути к заголовкам + линковка) | ✅ |
+| **Пункт 4** | Создание workflow для автоматических релизов | ✅ |
+| **Пункт 5** | Создание пакетов TGZ, DEB, RPM | ✅ |
+| **Пункт 6** | Загрузка пакетов в GitHub Release | ✅ |
 
 ---
 
-## 4. GitHub Actions Pipeline
-
-| Workflow | Триггер | Статус |
-|----------|---------|--------|
-| **CI** | push/pull_request в main | ✅ Проходит |
-| **CPack Packaging** | push тега v* | ✅ Создаёт пакеты |
-| **Create Release** | push тега v* | ✅ Создаёт релиз |
-
----
-
-## 5. Созданные пакеты
-
-| Формат | Файл |
-|--------|------|
-| TGZ | `print-0.1.0.0-Linux.tar.gz` |
-| DEB | `print-0.1.0.0-Linux.deb` |
-| RPM | `print-0.1.0.0-Linux.rpm` |
-
----
-
-## 6. Результаты локальной сборки
-
-### Тесты:
-```
-[==========] 2 tests from 1 test suite ran.
-[  PASSED  ] 2 tests.
-100% tests passed, 0 tests failed out of 1
-```
-
-### Solver application:
-```
-Enter coefficients a, b, c: Equation: 1.000000x^2 + -3.000000x + 2.000000 = 0
-Roots: x1 = 1.000000, x2 = 2.000000
-```
-
----
-
-## 7. Ссылки
+## Часть 4: Итоговые ссылки
 
 | Ресурс | Ссылка |
 |--------|--------|
@@ -885,12 +753,20 @@ Roots: x1 = 1.000000, x2 = 2.000000
 
 ---
 
-## 8. Выводы
+## Часть 5: Выводы
 
-1. ✅ **CPack настроен** для создания пакетов TGZ, DEB, RPM
-2. ✅ **Версионирование** добавлено в CMakeLists.txt
-3. ✅ **GitHub Actions** настроен для автоматического пакетирования при создании тегов
-4. ✅ **Все зависимости** правильно настроены (formatter_lib → formatter_ex_lib → solver_application)
-5. ✅ **CI тесты** проходят успешно на Linux и Windows
-6. ✅ **Solver application** работает корректно
-7. ✅ **Релизы** создаются автоматически на GitHub
+### 5.1. Основное задание
+- ✅ CPack настроен для создания пакетов TGZ
+- ✅ Версионирование добавлено в CMakeLists.txt
+- ✅ GitHub Actions настроен для автоматического пакетирования
+
+### 5.2. Домашнее задание
+
+| Пункт ДЗ | Что выполнено |
+|----------|---------------|
+| **Пункт 1** | Настроен правильный порядок подключения библиотек (`formatter_lib` → `formatter_ex_lib` → `solver_application`) |
+| **Пункт 2** | Исправлен `formatter_ex_lib` (добавлен путь к `formatter.h` и линковка с `formatter`) |
+| **Пункт 3** | Исправлен `solver_application` (добавлены пути к заголовкам и линковка) |
+| **Пункт 4** | Создан workflow для автоматического создания релизов при push тега |
+| **Пункт 5** | Созданы пакеты TGZ, DEB, RPM с бинарным файлом `solver` |
+| **Пункт 6** | Пакеты автоматически загружаются в GitHub Release |
