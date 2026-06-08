@@ -1,11 +1,20 @@
-cmake_minimum_required(VERSION 3.10)
-project(solver_app VERSION 1.0.0)
+cmake_minimum_required(VERSION 3.14)
+project(solver_app)
 
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD 17)
 
-add_executable(equation ${CMAKE_CURRENT_SOURCE_DIR}/equation.cpp)
-target_link_libraries(equation PRIVATE formatter_ex solver)
+# Добавляем пути к заголовочным файлам
+include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}/../formatter_ex_lib
+    ${CMAKE_CURRENT_SOURCE_DIR}/../solver_lib
+)
 
-install(TARGETS equation
-        RUNTIME DESTINATION bin)
+add_executable(equation equation.cpp)
+
+# Линкуем библиотеки
+target_link_libraries(equation 
+    formatter_ex
+    solver
+    banking
+    print
+)
