@@ -7,77 +7,74 @@ on:
     branches: [ main, master ]
 
 jobs:
-  test-print:
+  test-print-linux:
     runs-on: ubuntu-latest
-    
     strategy:
       matrix:
         compiler: [gcc, clang]
-    
     steps:
     - uses: actions/checkout@v4
-    
-    - name: Configure print tests
+    - name: Configure
       run: |
-        mkdir -p build-print
-        cd build-print
+        mkdir build && cd build
         cmake .. -DBUILD_TESTS=ON
-    
-    - name: Build print tests
+    - name: Build
       run: |
-        cd build-print
+        cd build
         cmake --build .
-    
-    - name: Run print tests
+    - name: Run tests
       run: |
-        cd build-print
+        cd build
         ctest --verbose
 
-  test-banking:
+  test-banking-linux:
     runs-on: ubuntu-latest
-    
     strategy:
       matrix:
         compiler: [gcc, clang]
-    
     steps:
     - uses: actions/checkout@v4
-    
-    - name: Configure banking tests
+    - name: Configure
       run: |
-        mkdir -p build-banking
-        cd build-banking
+        mkdir build && cd build
         cmake .. -DBUILD_BANKING_TESTS=ON
-    
-    - name: Build banking tests
+    - name: Build
       run: |
-        cd build-banking
+        cd build
         cmake --build .
-    
-    - name: Run banking tests
+    - name: Run tests
       run: |
-        cd build-banking
+        cd build
         ctest --verbose
 
   test-windows:
     runs-on: windows-latest
-    
     steps:
     - uses: actions/checkout@v4
-    
-    - name: Configure all tests
+    - name: Configure print tests
       run: |
-        mkdir build
-        cd build
-        cmake .. -DBUILD_TESTS=ON -DBUILD_BANKING_TESTS=ON
-    
-    - name: Build all tests
+        mkdir build-print
+        cd build-print
+        cmake .. -DBUILD_TESTS=ON -Dgtest_force_shared_crt=ON
+    - name: Build print tests
       run: |
-        cd build
+        cd build-print
         cmake --build . --config Release
-    
-    - name: Run all tests
-      shell: pwsh
+    - name: Run print tests
       run: |
-        cd build
+        cd build-print
+        ctest --verbose -C Release
+    
+    - name: Configure banking tests
+      run: |
+        mkdir build-banking
+        cd build-banking
+        cmake .. -DBUILD_BANKING_TESTS=ON -Dgtest_force_shared_crt=ON
+    - name: Build banking tests
+      run: |
+        cd build-banking
+        cmake --build . --config Release
+    - name: Run banking tests
+      run: |
+        cd build-banking
         ctest --verbose -C Release
