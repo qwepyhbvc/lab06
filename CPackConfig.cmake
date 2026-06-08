@@ -1,6 +1,10 @@
 include(InstallRequiredSystemLibraries)
 
-set(CPACK_PACKAGE_CONTACT ${GITHUB_EMAIL})
+# Контактная информация (ОБЯЗАТЕЛЬНО для DEB)
+set(CPACK_PACKAGE_CONTACT "qwepyhbvc@github.com")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "qwepyhbvc <qwepyhbvc@github.com>")
+
+# Версии
 set(CPACK_PACKAGE_VERSION_MAJOR ${PRINT_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${PRINT_VERSION_MINOR})
 set(CPACK_PACKAGE_VERSION_PATCH ${PRINT_VERSION_PATCH})
@@ -9,17 +13,27 @@ set(CPACK_PACKAGE_VERSION ${PRINT_VERSION})
 set(CPACK_PACKAGE_DESCRIPTION_FILE ${CMAKE_CURRENT_SOURCE_DIR}/DESCRIPTION)
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "static C++ library for printing")
 
+# Лицензия и README
 set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE)
 set(CPACK_RESOURCE_FILE_README ${CMAKE_CURRENT_SOURCE_DIR}/README.md)
 
+# RPM package
 set(CPACK_RPM_PACKAGE_NAME "print-devel")
 set(CPACK_RPM_PACKAGE_LICENSE "MIT")
 set(CPACK_RPM_PACKAGE_GROUP "print")
 set(CPACK_RPM_CHANGELOG_FILE ${CMAKE_CURRENT_SOURCE_DIR}/ChangeLog.md)
 set(CPACK_RPM_PACKAGE_RELEASE 1)
 
+# DEB package (исправлено)
 set(CPACK_DEBIAN_PACKAGE_NAME "libprint-dev")
 set(CPACK_DEBIAN_PACKAGE_PREDEPENDS "cmake >= 3.0")
 set(CPACK_DEBIAN_PACKAGE_RELEASE 1)
+# Явно указываем maintainer
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "qwepyhbvc <qwepyhbvc@github.com>")
+
+# Генераторы по умолчанию (только TGZ для CI)
+if(NOT CPACK_GENERATOR)
+    set(CPACK_GENERATOR "TGZ")
+endif()
 
 include(CPack)

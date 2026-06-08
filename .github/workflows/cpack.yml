@@ -7,9 +7,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-packages:
+  create-packages:
     runs-on: ubuntu-latest
-    
     steps:
     - uses: actions/checkout@v4
       with:
@@ -22,9 +21,10 @@ jobs:
     
     - name: Configure
       run: |
-        mkdir build
-        cd build
+        mkdir build && cd build
         cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+      env:
+        GITHUB_EMAIL: "qwepyhbvc@github.com"
     
     - name: Build
       run: |
@@ -46,49 +46,15 @@ jobs:
         cd build
         cpack -G RPM
     
+    - name: List packages
+      run: |
+        ls -la build/*.tar.gz build/*.deb build/*.rpm 2>/dev/null || echo "No packages found"
+    
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: packages
-        path: build/*.tar.gz build/*.deb build/*.rpm
-    
-    - name: Create Release
-      if: startsWith(github.ref, 'refs/tags/')
-      uses: softprops/action-gh-release@v1
-      with:
-        files: |
+        path: |
           build/*.tar.gz
           build/*.deb
           build/*.rpm
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  build-windows-packages:
-    runs-on: windows-latest
-    if: startsWith(github.ref, 'refs/tags/')
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Configure
-      run: |
-        mkdir build
-        cd build
-        cmake .. -DCMAKE_INSTALL_PREFIX=./install
-    
-    - name: Build
-      run: |
-        cd build
-        cmake --build . --config Release
-    
-    - name: Create NSIS package
-      run: |
-        cd build
-        cpack -G NSIS
-    
-    - name: Upload to Release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: build/*.exe
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
